@@ -1,7 +1,6 @@
 using DAT.EventBus;
 using DAT.EventBus.RabbitMQ;
 using Xunit;
-using Xunit.Sdk;
 
 namespace DAT.Testing.EventBus.RabbitMQ.Integration
 {
@@ -17,7 +16,7 @@ namespace DAT.Testing.EventBus.RabbitMQ.Integration
             bus.Publish("test1.test2", test);
         }
     }
-
+    
     public class MessageTest
     {
         public string Name { get; set; }
