@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DAT", "DAT\DAT.csproj", "{4E1100F6-354B-4E7F-9643-82A52C4A89BC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DAT.Testing", "DAT.Testing\DAT.Testing.csproj", "{7E2249E2-CF28-4551-BF34-D5CD542BF1D6}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4E1100F6-354B-4E7F-9643-82A52C4A89BC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4E1100F6-354B-4E7F-9643-82A52C4A89BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4E1100F6-354B-4E7F-9643-82A52C4A89BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4E1100F6-354B-4E7F-9643-82A52C4A89BC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7E2249E2-CF28-4551-BF34-D5CD542BF1D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7E2249E2-CF28-4551-BF34-D5CD542BF1D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7E2249E2-CF28-4551-BF34-D5CD542BF1D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7E2249E2-CF28-4551-BF34-D5CD542BF1D6}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
