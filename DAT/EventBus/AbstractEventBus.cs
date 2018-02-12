@@ -1,4 +1,5 @@
 ﻿using System;
+using Optional;
 
 namespace DAT.EventBus
 {
@@ -9,9 +10,9 @@ namespace DAT.EventBus
             InternalPublish(eventName, @event);
         }
 
-        public T Get<T>(string eventName)
+        public Option<T> Get<T>(string eventName)
         {
-            throw new NotImplementedException();
+            return InternalGet<T>(eventName);
         }
 
         public IObservable<T> Subscribe<T>(string eventName)
@@ -19,7 +20,12 @@ namespace DAT.EventBus
             throw new NotImplementedException();
         }
 
-        protected abstract T InternalGet<T>(string eventName);
+        public void Subscribe<T>(string eventName, Func<T, bool> handler)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected abstract Option<T> InternalGet<T>(string eventName);
 
         protected abstract T InternalSubscribe<T>(string eventName);
 

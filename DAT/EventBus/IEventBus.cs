@@ -1,5 +1,5 @@
-﻿
-using System;
+﻿using System;
+using Optional;
 
 namespace DAT.EventBus
 {
@@ -7,8 +7,10 @@ namespace DAT.EventBus
     {
         void Publish<T>(string eventName, T @event);
 
-        T Get<T>(string eventName);
+        Option<T> Get<T>(string eventName);
     
         IObservable<T> Subscribe<T>(string eventName);
+
+        void Subscribe<T>(string eventName, Func<T, bool> handler);
     }
 }

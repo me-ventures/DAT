@@ -1,5 +1,6 @@
 ﻿using System;
 using Newtonsoft.Json;
+using Optional;
 using RabbitMQ.Client;
 using static System.Text.Encoding;
 
@@ -31,14 +32,32 @@ namespace DAT.EventBus.RabbitMQ
             _channel = _connection.CreateModel();
         }
         
-        protected override T InternalGet<T>(string eventName)
+        protected override Option<T> InternalGet<T>(string eventName)
         {
-            throw new System.NotImplementedException();
+            Tuple<string, string> bus = splitQueueExchange(eventName);
+            
+            DeclareExchange(bus.Item1);
+            
+            // TODO: Declare Queue
+            
+            BasicGetResult result = _channel.BasicGet(bus.Item2, true);
+            
+
+            if (result == null)
+            {
+                return Option.None<T>();
+            }
+
+            byte[] body = result.Body;
+
+            T decodedMessage = JsonConvert.DeserializeObject<T>(UTF8.GetString(body));
+
+            return Option.Some(decodedMessage);
         }
 
         protected override T InternalSubscribe<T>(string eventName)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         protected override void InternalPublish<T>(string eventName, T @event)
@@ -47,7 +66,7 @@ namespace DAT.EventBus.RabbitMQ
 
             byte[] message = UTF8.GetBytes(JsonConvert.SerializeObject(@event));
             
-            _channel.ExchangeDeclare(bus.Item1, "direct", true);
+            DeclareExchange(bus.Item1);
             
             _channel.BasicPublish(bus.Item1, bus.Item2, null, message);
         }
@@ -59,6 +78,11 @@ namespace DAT.EventBus.RabbitMQ
             string topic = complete.Substring(splitNumber, (complete.Length - 1) - splitNumber);
             
             return new Tuple<string, string>(exchange, topic);
+        }
+
+        private void DeclareExchange(string exchange)
+        {
+            _channel.ExchangeDeclare(exchange, "direct", true);
         }
     }
 }
