@@ -1,3 +1,4 @@
+using DAT.Configuration;
 using DAT.EventBus;
 using DAT.EventBus.RabbitMQ;
 using Optional;
@@ -10,13 +11,13 @@ namespace DAT.Testing.EventBus.RabbitMQ.Integration
         [Fact]
         public void InstanceDefaultParametersCreationTest()
         {
-            IEventBus bus = new RabbitMQEventBus();
+            IEventBus bus = new RabbitMQEventBus(new DATConfiguration());
         }
 
         [Fact]
         public void PublishTest()
         {
-            IEventBus bus = new RabbitMQEventBus();
+            IEventBus bus = new RabbitMQEventBus(new DATConfiguration());
             
             MessageTest test = new MessageTest{ Name = "Maikel"};
             
@@ -26,7 +27,7 @@ namespace DAT.Testing.EventBus.RabbitMQ.Integration
         [Fact]
         public void GetTest()
         {
-            IEventBus bus = new RabbitMQEventBus();
+            IEventBus bus = new RabbitMQEventBus(new DATConfiguration());
             
             MessageTest test = new MessageTest{ Name = "Maikel"};
             

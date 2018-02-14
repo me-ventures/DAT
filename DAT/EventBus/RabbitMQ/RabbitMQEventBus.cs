@@ -1,4 +1,5 @@
 ﻿using System;
+using DAT.Configuration;
 using Newtonsoft.Json;
 using Optional;
 using RabbitMQ.Client;
@@ -8,17 +9,19 @@ namespace DAT.EventBus.RabbitMQ
 {
     public class RabbitMQEventBus : AbstractEventBus
     {
+        private readonly DATConfiguration _configuration;
         private readonly ConnectionFactory _connectionFactory;
         private IConnection _connection;
         private IModel _channel;
 
-        public RabbitMQEventBus() : this(new RabbitMQConnectionOptions{ Hostname = "localhost", Username = "guest", Password = "guest", VirtualHost = "/", Port = 5672 })
+        public RabbitMQEventBus(DATConfiguration configuration) : this(configuration, new RabbitMQConnectionOptions{ Hostname = "localhost", Username = "guest", Password = "guest", VirtualHost = "/", Port = 5672 })
         {
             
         }
 
-        public RabbitMQEventBus(RabbitMQConnectionOptions options)
+        public RabbitMQEventBus(DATConfiguration configuration, RabbitMQConnectionOptions options)
         {
+            _configuration = configuration;
             _connectionFactory = new ConnectionFactory
             {
                 UserName = options.Username,
@@ -39,8 +42,11 @@ namespace DAT.EventBus.RabbitMQ
             DeclareExchange(bus.Item1);
             
             // TODO: Declare Queue
+            string queueName = $"{_configuration.Name}.{eventName}";
+            _channel.QueueDeclare(queueName, true, false, false, null);
+            _channel.QueueBind(queueName, bus.Item1, bus.Item2, null);
             
-            BasicGetResult result = _channel.BasicGet(bus.Item2, true);
+            BasicGetResult result = _channel.BasicGet(queueName, true);
             
 
             if (result == null)
@@ -75,7 +81,7 @@ namespace DAT.EventBus.RabbitMQ
         {
             int splitNumber = complete.IndexOf('.');
             string exchange = complete.Substring(0, splitNumber);
-            string topic = complete.Substring(splitNumber, (complete.Length - 1) - splitNumber);
+            string topic = complete.Substring(splitNumber + 1, (complete.Length - 1) - splitNumber);
             
             return new Tuple<string, string>(exchange, topic);
         }
