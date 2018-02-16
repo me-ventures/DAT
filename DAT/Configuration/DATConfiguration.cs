@@ -3,5 +3,7 @@
     public class DATConfiguration
     {
         public string Name { get; set; } = "Default-Name";
+        
+        public EventbusConfiguration EventBus { get; set; }
     }
 }

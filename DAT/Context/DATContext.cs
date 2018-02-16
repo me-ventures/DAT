@@ -39,5 +39,15 @@ namespace DAT.Context
 
             Container = containerBuilder.Build();
         }
+
+        private static void BootstrapEventbus(ContainerBuilder builder, DATConfiguration configuration)
+        {
+            if (configuration.EventBus == null)
+            {
+                return;
+            }    
+            
+            
+        } 
     }
 }

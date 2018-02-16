@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Reactive.Subjects;
 using DAT.Configuration;
 using Newtonsoft.Json;
 using Optional;
 using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
 using static System.Text.Encoding;
 
 namespace DAT.EventBus.RabbitMQ
@@ -14,21 +16,29 @@ namespace DAT.EventBus.RabbitMQ
         private IConnection _connection;
         private IModel _channel;
 
-        public RabbitMQEventBus(DATConfiguration configuration) : this(configuration, new RabbitMQConnectionOptions{ Hostname = "localhost", Username = "guest", Password = "guest", VirtualHost = "/", Port = 5672 })
+        public RabbitMQEventBus(DATConfiguration configuration) : this(configuration, new EventbusConfiguration(){ Hostname = "localhost", Username = "guest", Password = "guest", VirtualHost = "/", Port = 5672 })
         {
             
         }
 
-        public RabbitMQEventBus(DATConfiguration configuration, RabbitMQConnectionOptions options)
+        public RabbitMQEventBus(DATConfiguration configuration, EventbusConfiguration options)
         {
             _configuration = configuration;
+
+            int port = 5672;
+            
+            if (options.Port != null)
+            {
+                port = options.Port.Value;
+            }
+            
             _connectionFactory = new ConnectionFactory
             {
                 UserName = options.Username,
                 Password = options.Password,
                 VirtualHost = options.VirtualHost,
                 HostName = options.Hostname,
-                Port = options.Port
+                Port = port
             };
 
             _connection = _connectionFactory.CreateConnection();
@@ -61,9 +71,62 @@ namespace DAT.EventBus.RabbitMQ
             return Option.Some(decodedMessage);
         }
 
-        protected override T InternalSubscribe<T>(string eventName)
+        protected override IObservable<T> InternalSubscribe<T>(string eventName)
         {
-            throw new NotImplementedException();
+            Tuple<string, string> bus = splitQueueExchange(eventName);
+            Subject<T> subject = new Subject<T>();
+            
+            string queueName = $"{_configuration.Name}.{eventName}";
+            _channel.QueueDeclare(queueName, true, false, false, null);
+            _channel.QueueBind(queueName, bus.Item1, bus.Item2, null);
+
+            EventingBasicConsumer consumer = new EventingBasicConsumer(_channel);
+
+            consumer.Received += (sender, args) =>
+            {
+                byte[] body = args.Body;
+
+                T message = DecodeMessage<T>(body);
+                subject.OnNext(message);
+                
+                _channel.BasicAck(args.DeliveryTag, false);
+            };
+            
+            String consumerTag = _channel.BasicConsume(queueName, false, consumer);
+            
+            return subject;
+
+        }
+
+        protected override void InternalSubscribe<T>(string eventName, Func<T, bool> handler)
+        {
+            Tuple<string, string> bus = splitQueueExchange(eventName);
+            
+            string queueName = $"{_configuration.Name}.{eventName}";
+            _channel.QueueDeclare(queueName, true, false, false, null);
+            _channel.QueueBind(queueName, bus.Item1, bus.Item2, null);
+
+            EventingBasicConsumer consumer = new EventingBasicConsumer(_channel);
+
+            consumer.Received += (sender, args) =>
+            {
+                byte[] body = args.Body;
+
+                T message = DecodeMessage<T>(body);
+                bool result = handler(message);
+
+                if (result)
+                {
+                    _channel.BasicAck(args.DeliveryTag, false);    
+                }
+                else
+                {
+                    _channel.BasicNack(args.DeliveryTag, false, true);
+                }
+                
+            };
+            
+            String consumerTag = _channel.BasicConsume(queueName, false, consumer);
         }
 
         protected override void InternalPublish<T>(string eventName, T @event)
@@ -89,6 +152,11 @@ namespace DAT.EventBus.RabbitMQ
         private void DeclareExchange(string exchange)
         {
             _channel.ExchangeDeclare(exchange, "direct", true);
+        }
+
+        private T DecodeMessage<T>(byte[] message)
+        {
+            return JsonConvert.DeserializeObject<T>(UTF8.GetString(message));    
         }
     }
 }

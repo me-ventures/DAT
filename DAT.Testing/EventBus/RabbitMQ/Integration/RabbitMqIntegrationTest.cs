@@ -1,6 +1,11 @@
+using System;
+using System.Reactive;
+using System.Reactive.Linq;
+using System.Threading;
 using DAT.Configuration;
 using DAT.EventBus;
 using DAT.EventBus.RabbitMQ;
+using Microsoft.Reactive.Testing;
 using Optional;
 using Xunit;
 
@@ -38,6 +43,52 @@ namespace DAT.Testing.EventBus.RabbitMQ.Integration
             Assert.True(returnMessage.HasValue);
             Assert.True(returnMessage.Exists(x => x.Name == "Maikel"));
             
+        }
+
+        [Fact]
+        public async void ObservableSubscribeTest()
+        {
+            IEventBus bus = new RabbitMQEventBus(new DATConfiguration());
+            
+            MessageTest test = new MessageTest{ Name = "Maikel"};
+            
+            bus.Publish("exchange.subscribe-test", test);
+            bus.Publish("exchange.subscribe-test", test);
+            bus.Publish("exchange.subscribe-test", test);
+
+            
+            IObservable<MessageTest> subscription = bus.Subscribe<MessageTest>("exchange.subscribe-test");
+           
+
+            subscription.Do(messageTest => Assert.Equal("Maikel", messageTest.Name)).Subscribe();
+        }
+        
+        [Fact]
+        public async void HandlerSubscribeTest()
+        {
+            IEventBus bus = new RabbitMQEventBus(new DATConfiguration());
+            
+            MessageTest test = new MessageTest{ Name = "Maikel"};
+            
+            bus.Publish("exchange.subscribe-test-handler", test);
+            bus.Publish("exchange.subscribe-test-handler", test);
+            bus.Publish("exchange.subscribe-test-handler", test);
+
+
+            int index = 0;
+            
+            bus.Subscribe<MessageTest>("exchange.subscribe-test-handler", messageTest =>
+                {
+                    Assert.Equal("Maikel", messageTest.Name);
+
+                    index++;
+                    
+                    return true;
+                });
+           
+            Thread.Sleep(500);
+            
+            Assert.Equal(3, index);
         }
     }
     
