@@ -14,6 +14,10 @@ namespace DAT.Testing.Context
         [Fact]
         public void BootstrapDefaultTest()
         {
+            bool eventHandlerCalled = false;
+
+            DATContext.PreContainerBuild += (sender, builder) => { eventHandlerCalled = true; };
+            
             DATContext.Bootstrap();
 
             DATConfiguration datConfiguration = DATContext.Container.Resolve<DATConfiguration>();
@@ -23,6 +27,7 @@ namespace DAT.Testing.Context
             ILogger logger = DATContext.Container.Resolve<ILogger>();
             
             Assert.NotNull(logger);
+            Assert.True(eventHandlerCalled);
         }
     }
 }

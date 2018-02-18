@@ -46,7 +46,7 @@ namespace DAT.Testing.EventBus.RabbitMQ.Integration
         }
 
         [Fact]
-        public async void ObservableSubscribeTest()
+        public void ObservableSubscribeTest()
         {
             IEventBus bus = new RabbitMQEventBus(new DATConfiguration());
             
@@ -64,7 +64,7 @@ namespace DAT.Testing.EventBus.RabbitMQ.Integration
         }
         
         [Fact]
-        public async void HandlerSubscribeTest()
+        public void HandlerSubscribeTest()
         {
             IEventBus bus = new RabbitMQEventBus(new DATConfiguration());
             

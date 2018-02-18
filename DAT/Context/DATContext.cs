@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Autofac;
 using DAT.Configuration;
 using DAT.EventBus;
@@ -12,6 +13,12 @@ namespace DAT.Context
     {
         
         public static IContainer Container { get; private set; }
+
+        /// <summary>
+        /// This event will be fired before the final container build is started and be used to register custom services
+        /// and components.
+        /// </summary>
+        public static event EventHandler<ContainerBuilder> PreContainerBuild;
 
         /**
          * Initialize a new DAT context. This will try to use the appsettings.json in the local directory. If this file
@@ -38,6 +45,8 @@ namespace DAT.Context
             
             BootstrapLogger(containerBuilder, configuration);
             BootstrapEventbus(containerBuilder, configuration);
+            
+            OnPreContainerBuild(containerBuilder);
 
             Container = containerBuilder.Build();
         }
@@ -70,6 +79,13 @@ namespace DAT.Context
                                              .AddDebug(configuration.Logging.LogLevel);
 
             builder.Register((context, parameters) => factory.CreateLogger<DATContext>()).As<ILogger>();
+        }
+
+        private static void OnPreContainerBuild(ContainerBuilder builder)
+        {
+            EventHandler<ContainerBuilder> eh = PreContainerBuild;
+
+            eh?.Invoke(null, builder);
         }
     }
 }
