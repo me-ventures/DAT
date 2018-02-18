@@ -31,12 +31,18 @@ namespace DAT.EventBus.RabbitMQ
             {
                 port = options.Port.Value;
             }
+
+            string virtualHost = "/";
+            if (options.VirtualHost != null)
+            {
+                virtualHost = options.VirtualHost;
+            }
             
             _connectionFactory = new ConnectionFactory
             {
                 UserName = options.Username,
                 Password = options.Password,
-                VirtualHost = options.VirtualHost,
+                VirtualHost = virtualHost,
                 HostName = options.Hostname,
                 Port = port
             };
