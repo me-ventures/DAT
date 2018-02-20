@@ -16,4 +16,13 @@
       <Name>DAT</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="pkg\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Remove="pkg\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="pkg\**" />
+  </ItemGroup>
 </Project>
