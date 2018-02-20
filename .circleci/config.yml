@@ -6,7 +6,7 @@ jobs:
     working_directory: /app
     parallelism: 1
     environment:
-      - VERSION: 0.0.3
+      - VERSION: 0.0.4
     steps:
       - checkout
       - setup_remote_docker
