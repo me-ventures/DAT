@@ -4,6 +4,8 @@ using Autofac;
 using DAT.Configuration;
 using DAT.EventBus;
 using DAT.EventBus.RabbitMQ;
+using DAT.Metrics;
+using DAT.Metrics.Mock;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
@@ -45,10 +47,17 @@ namespace DAT.Context
             
             BootstrapLogger(containerBuilder, configuration);
             BootstrapEventbus(containerBuilder, configuration);
+            BootstrapMetrics(containerBuilder, configuration);
             
             OnPreContainerBuild(containerBuilder);
 
             Container = containerBuilder.Build();
+        }
+
+        private static void BootstrapMetrics(ContainerBuilder containerBuilder, DATConfiguration configuration)
+        {
+            MockMetricsClient client = new MockMetricsClient();
+            containerBuilder.RegisterInstance(client).As<IMetricsClient>();
         }
 
         private static void BootstrapEventbus(ContainerBuilder builder, DATConfiguration configuration)
