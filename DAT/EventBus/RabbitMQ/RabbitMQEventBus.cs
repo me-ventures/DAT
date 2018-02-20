@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reactive.Subjects;
 using DAT.Configuration;
+using DAT.Metrics;
 using Newtonsoft.Json;
 using Optional;
 using RabbitMQ.Client;
@@ -16,12 +17,13 @@ namespace DAT.EventBus.RabbitMQ
         private IConnection _connection;
         private IModel _channel;
 
-        public RabbitMQEventBus(DATConfiguration configuration) : this(configuration, new EventbusConfiguration(){ Hostname = "localhost", Username = "guest", Password = "guest", VirtualHost = "/", Port = 5672 })
+        public RabbitMQEventBus(DATConfiguration configuration, IMetricsClient client) 
+            : this(configuration, new EventbusConfiguration(){ Hostname = "localhost", Username = "guest", Password = "guest", VirtualHost = "/", Port = 5672 }, client)
         {
             
         }
 
-        public RabbitMQEventBus(DATConfiguration configuration, EventbusConfiguration options)
+        public RabbitMQEventBus(DATConfiguration configuration, EventbusConfiguration options, IMetricsClient client): base(client)
         {
             _configuration = configuration;
 

@@ -1,10 +1,18 @@
 ﻿using System;
+using DAT.Metrics;
 using Optional;
 
 namespace DAT.EventBus
 {
     public abstract class AbstractEventBus : IEventBus
     {
+        private readonly IMetricsClient _clientMetrics;
+
+        protected AbstractEventBus(IMetricsClient clientMetrics)
+        {
+            _clientMetrics = clientMetrics;
+        }
+        
         public void Publish<T>(string eventName, T @event)
         {
             InternalPublish(eventName, @event);

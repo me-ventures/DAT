@@ -45,9 +45,9 @@ namespace DAT.Context
 
             containerBuilder.RegisterInstance(configuration).As<DATConfiguration>();
             
+            BootstrapMetrics(containerBuilder, configuration);
             BootstrapLogger(containerBuilder, configuration);
             BootstrapEventbus(containerBuilder, configuration);
-            BootstrapMetrics(containerBuilder, configuration);
             
             OnPreContainerBuild(containerBuilder);
 
@@ -67,10 +67,13 @@ namespace DAT.Context
                 return;
             }
 
+            IContainer container = builder.Build();
+            IMetricsClient client = container.Resolve<IMetricsClient>();
+            
             switch (configuration.EventBus.Type)
             {
                     case "rabbitmq":
-                        RabbitMQEventBus bus = new RabbitMQEventBus(configuration, configuration.EventBus);
+                        RabbitMQEventBus bus = new RabbitMQEventBus(configuration, configuration.EventBus, client);
                         builder.RegisterInstance(bus).As<IEventBus>();
                         break;
             }
