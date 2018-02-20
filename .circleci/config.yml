@@ -26,5 +26,5 @@ jobs:
           name: Deploy if on Release
           command: |
             if [ "${CIRCLE_BRANCH}" == "release" ]; then
-
+                dotnet nuget push /app/DAT/pkg/DAT.$VERSION.nupkg -k $NUGET_API_KEY
             fi
