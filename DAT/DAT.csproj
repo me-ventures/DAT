@@ -15,4 +15,22 @@
     <PackageReference Include="RabbitMQ.Client" Version="5.0.1" />
     <PackageReference Include="System.Reactive" Version="3.1.1" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="pkg\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Remove="pkg\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="pkg\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="nupkgs\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Remove="nupkgs\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="nupkgs\**" />
+  </ItemGroup>
 </Project>

@@ -356,5 +356,7 @@ __pycache__/
 # By default, sensitive information, such as encrypted password
 # should be stored in the .pubxml.user file.
 
+DAT/pkg
+DAT.Testing/pkg
 
 # End of https://www.gitignore.io/api/intellij+all,visualstudio

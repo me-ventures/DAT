@@ -1,0 +1,30 @@
+version: 2
+jobs:
+ build:
+    docker:
+      - image: microsoft/dotnet:2.0-sdk
+    working_directory: /app
+    parallelism: 1
+    environment:
+      - VERSION: 0.0.1
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Restore
+          command: dotnet restore
+      - run:
+          name: Build All
+          command: dotnet build -c Release --no-restore
+      - run:
+          name: Run test
+          command: echo "hello"
+      - run:        
+          name: Package application
+          command: dotnet pack -c Release --no-restore --no-build -o pkg /p:Version=$VERSION /p:Authors=Conveniors DAT/DAT.csproj
+      - deploy:
+          name: Deploy if on Release
+          command: |
+            if [ "${CIRCLE_BRANCH}" == "release" ]; then
+
+            fi
