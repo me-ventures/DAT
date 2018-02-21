@@ -66,15 +66,14 @@ namespace DAT.Context
             {
                 return;
             }
-
-            IContainer container = builder.Build();
-            IMetricsClient client = container.Resolve<IMetricsClient>();
             
             switch (configuration.EventBus.Type)
             {
                     case "rabbitmq":
-                        RabbitMQEventBus bus = new RabbitMQEventBus(configuration, configuration.EventBus, client);
-                        builder.RegisterInstance(bus).As<IEventBus>();
+                        
+                        builder.Register(c => new RabbitMQEventBus(configuration, configuration.EventBus, c.Resolve<IMetricsClient>()))
+                               .As<IEventBus>()
+                               .SingleInstance();
                         break;
             }
         }
