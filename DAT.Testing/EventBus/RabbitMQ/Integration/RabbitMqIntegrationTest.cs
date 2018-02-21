@@ -5,6 +5,7 @@ using System.Threading;
 using DAT.Configuration;
 using DAT.EventBus;
 using DAT.EventBus.RabbitMQ;
+using DAT.Metrics;
 using Microsoft.Reactive.Testing;
 using Optional;
 using Xunit;
@@ -16,13 +17,17 @@ namespace DAT.Testing.EventBus.RabbitMQ.Integration
         [Fact]
         public void InstanceDefaultParametersCreationTest()
         {
-            IEventBus bus = new RabbitMQEventBus(new DATConfiguration());
+            IMetricsClient client = NSubstitute.Substitute.For<IMetricsClient>();
+            
+            IEventBus bus = new RabbitMQEventBus(new DATConfiguration(), client);
         }
 
         [Fact]
         public void PublishTest()
         {
-            IEventBus bus = new RabbitMQEventBus(new DATConfiguration());
+            IMetricsClient client = NSubstitute.Substitute.For<IMetricsClient>();
+            
+            IEventBus bus = new RabbitMQEventBus(new DATConfiguration(), client);
             
             MessageTest test = new MessageTest{ Name = "Maikel"};
             
@@ -32,7 +37,9 @@ namespace DAT.Testing.EventBus.RabbitMQ.Integration
         [Fact]
         public void GetTest()
         {
-            IEventBus bus = new RabbitMQEventBus(new DATConfiguration());
+            IMetricsClient client = NSubstitute.Substitute.For<IMetricsClient>();
+            
+            IEventBus bus = new RabbitMQEventBus(new DATConfiguration(), client);
             
             MessageTest test = new MessageTest{ Name = "Maikel"};
             
@@ -48,7 +55,9 @@ namespace DAT.Testing.EventBus.RabbitMQ.Integration
         [Fact]
         public void ObservableSubscribeTest()
         {
-            IEventBus bus = new RabbitMQEventBus(new DATConfiguration());
+            IMetricsClient client = NSubstitute.Substitute.For<IMetricsClient>();
+            
+            IEventBus bus = new RabbitMQEventBus(new DATConfiguration(), client);
             
             MessageTest test = new MessageTest{ Name = "Maikel"};
             
@@ -66,7 +75,9 @@ namespace DAT.Testing.EventBus.RabbitMQ.Integration
         [Fact]
         public void HandlerSubscribeTest()
         {
-            IEventBus bus = new RabbitMQEventBus(new DATConfiguration());
+            IMetricsClient client = NSubstitute.Substitute.For<IMetricsClient>();
+            
+            IEventBus bus = new RabbitMQEventBus(new DATConfiguration(), client);
             
             MessageTest test = new MessageTest{ Name = "Maikel"};
             
