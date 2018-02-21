@@ -112,6 +112,8 @@ namespace DAT.EventBus.RabbitMQ
         {
             Tuple<string, string> bus = splitQueueExchange(eventName);
             
+            DeclareExchange(bus.Item1);
+            
             string queueName = $"{_configuration.Name}.{eventName}";
             _channel.QueueDeclare(queueName, true, false, false, null);
             _channel.QueueBind(queueName, bus.Item1, bus.Item2, null);
