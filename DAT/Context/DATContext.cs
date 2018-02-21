@@ -18,7 +18,7 @@ namespace DAT.Context
 
         /// <summary>
         /// This event will be fired before the final container build is started and be used to register custom services
-        /// and components.
+        /// and components. 
         /// </summary>
         public static event EventHandler<ContainerBuilder> PreContainerBuild;
 
