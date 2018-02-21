@@ -5,11 +5,6 @@ jobs:
       - image: microsoft/dotnet:2.0-sdk
     working_directory: /app
     parallelism: 1
-<<<<<<< HEAD
-    environment:
-      - VERSION: 0.0.5
-=======
->>>>>>> master
     steps:
       - checkout
       - setup_remote_docker
