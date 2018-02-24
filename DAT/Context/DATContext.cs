@@ -22,28 +22,25 @@ namespace DAT.Context
         /// </summary>
         public static event EventHandler<ContainerBuilder> PreContainerBuild;
 
-        /**
-         * Initialize a new DAT context. This will try to use the appsettings.json in the local directory. If this file
-         * is not found it will fall back to a default configuration.
-         */
+        /// <summary>
+        /// Initialize a new DAT context. This will try to use the appsettings.json in the local directory. If this file
+        /// is not found it will fall back to a default configuration. 
+        /// </summary>
         public static void Bootstrap()
         {
-            // Default location is appsettings.json in the local directory
-            IConfigurationBuilder builder = new ConfigurationBuilder()
-                .AddJsonFile("appsettings.json", true);
+            Bootstrap<Configuration.Configuration>();
+        }
 
-            IConfiguration config = builder.Build();
-
-            // If there are no childeren configuration load failed, so we manually load the default. 
-            DATConfiguration configuration = config.GetSection("DAT").Get<DATConfiguration>();
-            if (configuration == null)
-            {
-                configuration = new DATConfiguration();
-            }
-             
+        /// <summary>
+        /// Initialize a new DAT context. This will try to use the appsettings.json in the local directory. If this file
+        /// is not found it will fall back to a default configuration.
+        /// </summary>
+        /// <typeparam name="T">Type of the configuration file, must inherit from Configuration.Configuration</typeparam>
+        public static void Bootstrap<T>() where T : Configuration.Configuration
+        {
             ContainerBuilder containerBuilder = new ContainerBuilder();
 
-            containerBuilder.RegisterInstance(configuration).As<DATConfiguration>();
+            DATConfiguration configuration = BootstrapConfiguration<T>(containerBuilder);
             
             BootstrapMetrics(containerBuilder, configuration);
             BootstrapLogger(containerBuilder, configuration);
@@ -52,6 +49,28 @@ namespace DAT.Context
             OnPreContainerBuild(containerBuilder);
 
             Container = containerBuilder.Build();
+        }
+
+        private static DATConfiguration BootstrapConfiguration<T>(ContainerBuilder containerBuilder)
+        {
+            // Default location is appsettings.json in the local directory
+            IConfigurationBuilder builder = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json", true);
+
+            IConfiguration config = builder.Build();
+
+            // If there are no childeren configuration load failed, so we manually load the default.
+            Configuration.Configuration fullConfig = config.Get<Configuration.Configuration>();
+            DATConfiguration configuration = config.GetSection("DAT").Get<DATConfiguration>();
+            if (configuration == null)
+            {
+                configuration = new DATConfiguration();
+            }
+            
+            containerBuilder.RegisterInstance(configuration).As<DATConfiguration>();
+            containerBuilder.RegisterInstance(fullConfig).As<T>();
+
+            return configuration;
         }
 
         private static void BootstrapMetrics(ContainerBuilder containerBuilder, DATConfiguration configuration)
