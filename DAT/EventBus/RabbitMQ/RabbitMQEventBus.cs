@@ -74,7 +74,7 @@ namespace DAT.EventBus.RabbitMQ
 
             byte[] body = result.Body;
 
-            T decodedMessage = JsonConvert.DeserializeObject<T>(UTF8.GetString(body));
+            T decodedMessage = DecodeMessage<T>(body);
 
             return Option.Some(decodedMessage);
         }
