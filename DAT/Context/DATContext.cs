@@ -51,7 +51,7 @@ namespace DAT.Context
             Container = containerBuilder.Build();
         }
 
-        private static DATConfiguration BootstrapConfiguration<T>(ContainerBuilder containerBuilder)
+        private static DATConfiguration BootstrapConfiguration<T>(ContainerBuilder containerBuilder) where T : Configuration.Configuration
         {
             // Default location is appsettings.json in the local directory
             IConfigurationBuilder builder = new ConfigurationBuilder()
@@ -60,7 +60,7 @@ namespace DAT.Context
             IConfiguration config = builder.Build();
 
             // If there are no childeren configuration load failed, so we manually load the default.
-            Configuration.Configuration fullConfig = config.Get<Configuration.Configuration>();
+            T fullConfig = config.Get<T>();
             DATConfiguration configuration = config.GetSection("DAT").Get<DATConfiguration>();
             if (configuration == null)
             {
