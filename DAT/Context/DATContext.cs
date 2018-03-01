@@ -56,6 +56,16 @@ namespace DAT.Context
             // Default location is appsettings.json in the local directory
             IConfigurationBuilder builder = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json", true);
+                
+
+            string environment = Environment.GetEnvironmentVariable("NETCORE_ENVIRONMENT");
+            if (environment != null)
+            {
+                builder.AddJsonFile($"appsettings.{environment.ToLower()}.json", true);
+            }
+            
+            // Local is last since it is the most specific configuration file
+            builder.AddJsonFile("appsettings.local.json", true);
 
             IConfiguration config = builder.Build();
 

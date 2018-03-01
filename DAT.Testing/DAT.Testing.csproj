@@ -18,12 +18,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Remove="pkg\**" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Remove="pkg\**" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Remove="pkg\**" />
+    <Content Include="*.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 </Project>

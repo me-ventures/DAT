@@ -29,5 +29,26 @@ namespace DAT.Testing.Context
             Assert.NotNull(logger);
             Assert.True(eventHandlerCalled);
         }
+        
+        [Fact]
+        public void BootstrapDefaultStagingTest()
+        {
+            Environment.SetEnvironmentVariable("NETCORE_ENVIRONMENT", "Staging");
+            
+            bool eventHandlerCalled = false;
+
+            DATContext.PreContainerBuild += (sender, builder) => { eventHandlerCalled = true; };
+            
+            DATContext.Bootstrap();
+
+            DATConfiguration datConfiguration = DATContext.Container.Resolve<DATConfiguration>();
+            
+            Assert.Equal("test-service-2", datConfiguration.Name);
+
+            ILogger logger = DATContext.Container.Resolve<ILogger>();
+            
+            Assert.NotNull(logger);
+            Assert.True(eventHandlerCalled);
+        }
     }
 }
