@@ -1,4 +1,5 @@
-﻿using System;
+﻿﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using Autofac;
 using DAT.Configuration;
@@ -8,6 +9,7 @@ using DAT.Metrics;
 using DAT.Metrics.Mock;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace DAT.Context
 {
@@ -15,6 +17,7 @@ namespace DAT.Context
     {
         
         public static IContainer Container { get; private set; }
+        private static bool DebugMode = false;
 
         /// <summary>
         /// This event will be fired before the final container build is started and be used to register custom services
@@ -36,8 +39,10 @@ namespace DAT.Context
         /// is not found it will fall back to a default configuration.
         /// </summary>
         /// <typeparam name="T">Type of the configuration file, must inherit from Configuration.Configuration</typeparam>
-        public static void Bootstrap<T>() where T : Configuration.Configuration
+        public static void Bootstrap<T>( bool debugMode = false ) where T : Configuration.Configuration
         {
+            DebugMode = debugMode;
+            
             ContainerBuilder containerBuilder = new ContainerBuilder();
 
             DATConfiguration configuration = BootstrapConfiguration<T>(containerBuilder);
@@ -59,13 +64,23 @@ namespace DAT.Context
                 
 
             string environment = Environment.GetEnvironmentVariable("NETCORE_ENVIRONMENT");
+
+            PrintDebug($"environment set to [{environment}]");
+            
             if (environment != null)
             {
-                builder.AddJsonFile($"appsettings.{environment.ToLower()}.json", true);
+                string fileName = $"appsettings.{environment.ToLower()}.json";
+                
+                builder.AddJsonFile(fileName, true);
+
+                PrintDebug($"loaded [{fileName}]");
             }
             
             // Local is last since it is the most specific configuration file
             builder.AddJsonFile("appsettings.local.json", true);
+            
+            // Environment variables should always override configuration values. This usefull for example passwords
+            builder.AddEnvironmentVariables();
 
             IConfiguration config = builder.Build();
 
@@ -80,6 +95,9 @@ namespace DAT.Context
             containerBuilder.RegisterInstance(configuration).As<DATConfiguration>();
             containerBuilder.RegisterInstance(fullConfig).As<T>();
 
+            PrintDebug("Outputting Effective Config:");
+            PrintDebug(JsonConvert.SerializeObject(fullConfig));
+            
             return configuration;
         }
 
@@ -126,6 +144,14 @@ namespace DAT.Context
             EventHandler<ContainerBuilder> eh = PreContainerBuild;
 
             eh?.Invoke(null, builder);
+        }
+
+        private static void PrintDebug(string message)
+        {
+            if (DebugMode)
+            {
+                Console.WriteLine(message);
+            }
         }
     }
 }
