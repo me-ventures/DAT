@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.Diagnostics;
 using System.Linq;
 using Autofac;
@@ -79,6 +79,8 @@ namespace DAT.Context
             // Local is last since it is the most specific configuration file
             builder.AddJsonFile("appsettings.local.json", true);
             
+            // Environment variables should always override configuration values. This usefull for example passwords
+            builder.AddEnvironmentVariables();
 
             IConfiguration config = builder.Build();
 
