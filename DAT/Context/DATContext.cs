@@ -7,7 +7,8 @@ using DAT.EventBus;
 using DAT.EventBus.RabbitMQ;
 using DAT.Metrics;
 using DAT.Metrics.Mock;
-using Microsoft.Extensions.Configuration;
+ using DAT.Metrics.StatsD;
+ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
@@ -86,12 +87,8 @@ namespace DAT.Context
 
             // If there are no childeren configuration load failed, so we manually load the default.
             T fullConfig = config.Get<T>();
-            DATConfiguration configuration = config.GetSection("DAT").Get<DATConfiguration>();
-            if (configuration == null)
-            {
-                configuration = new DATConfiguration();
-            }
-            
+            DATConfiguration configuration = config.GetSection("DAT").Get<DATConfiguration>() ?? new DATConfiguration();
+
             containerBuilder.RegisterInstance(configuration).As<DATConfiguration>();
             containerBuilder.RegisterInstance(fullConfig).As<T>();
 
@@ -103,8 +100,24 @@ namespace DAT.Context
 
         private static void BootstrapMetrics(ContainerBuilder containerBuilder, DATConfiguration configuration)
         {
-            MockMetricsClient client = new MockMetricsClient();
-            containerBuilder.RegisterInstance(client).As<IMetricsClient>();
+            if (configuration.Metrics == null)
+            {
+                MockMetricsClient client = new MockMetricsClient();
+                containerBuilder.RegisterInstance(client).As<IMetricsClient>();    
+            }
+            else
+            {
+                switch (configuration.Metrics.Type)
+                {
+                        case "statsd":
+                            containerBuilder.Register(c => new StatsDMetricsClient(configuration.Metrics))
+                                .As<IMetricsClient>()
+                                .SingleInstance();
+                            break;
+                        default:
+                            throw new Exception($"Invalid metrics type: {configuration.Metrics.Type}");
+                }
+            }
         }
 
         private static void BootstrapEventbus(ContainerBuilder builder, DATConfiguration configuration)

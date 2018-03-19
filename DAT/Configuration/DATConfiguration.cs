@@ -7,5 +7,7 @@
         public EventbusConfiguration EventBus { get; set; }
         
         public LoggingConfiguration Logging { get; set; }
+        
+        public MetricsConfiguration Metrics { get; set; }
     }
 }
