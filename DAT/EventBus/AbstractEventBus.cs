@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reactive.Linq;
 using DAT.Metrics;
 using Optional;
 
@@ -15,22 +16,39 @@ namespace DAT.EventBus
         
         public void Publish<T>(string eventName, T @event)
         {
+            _clientMetrics.Counter($"messages.publish", 1);
+            
             InternalPublish(eventName, @event);
         }
 
         public Option<T> Get<T>(string eventName)
         {
-            return InternalGet<T>(eventName);
+            Option<T> internalGet = InternalGet<T>(eventName);
+
+            if (internalGet.HasValue)
+            {
+                _clientMetrics.Counter($"messages.{eventName}", 1);
+            }
+
+            return internalGet;
         }
 
         public IObservable<T> Subscribe<T>(string eventName)
         {
-            return InternalSubscribe<T>(eventName);
+            return InternalSubscribe<T>(eventName)
+                        .Do(obj => _clientMetrics.Counter($"messages.{eventName}", 1));
         }
 
         public void Subscribe<T>(string eventName, Func<T, bool> handler)
         {
-            InternalSubscribe<T>(eventName, handler);
+            Func<T, bool> wrapper = arg =>
+            {
+                _clientMetrics.Counter($"messages.{eventName}", 1);
+                
+                return handler(arg);
+            };
+            
+            InternalSubscribe<T>(eventName, wrapper);
         }
 
         protected abstract Option<T> InternalGet<T>(string eventName);
