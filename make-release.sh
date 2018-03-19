@@ -1,3 +1,9 @@
+if [ -z "$1" ]
+then
+    echo "Version not specified."
+    exit 1
+fi
+
 git checkout release
 git merge --no-ff master
 echo "export VERSION=$1" > VERSION
